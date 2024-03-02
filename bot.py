@@ -60,16 +60,16 @@ def random_movie(message):
     senf_info(bot, message, row)
 
 
-def send_info(message, movie):
-    # Assuming the movie is a tuple with elements (title, genre, year)
-    title = movie[0]
-    genre = movie[1]
-    year = movie[2]
-    movie_info = f"Title: {title}\nGenre: {genre}\nYear: {year}"
-    bot.send_message(message.chat.id, movie_info)
-
 @bot.message_handler(commands=['genre_movies'])
 def genre_movies(message):
+    def send_info(message, movie):
+        # Assuming the movie is a tuple with elements (title, genre, year)
+        title = movie[0]
+        genre = movie[1]
+        year = movie[2]
+        movie_info = f"Title: {title}\nGenre: {genre}\nYear: {year}"
+        bot.send_message(message.chat.id, movie_info)
+
     genres = message.text.split()[1:]
     if not genres:
         bot.reply_to(message, "Вы не указали жанры. Пожалуйста, укажите хотя бы один жанр.")
@@ -89,8 +89,12 @@ def genre_movies(message):
         return
 
     for movie in movies:
-        send_info(message, movie)
-
+        # Инлайним содержимое функции send_info
+        title = movie[0]
+        genre = movie[1]
+        year = movie[2]
+        movie_info = f"Title: {title}\nGenre: {genre}\nYear: {year}"
+        bot.send_message(message.chat.id, movie_info)
 
 
 @bot.message_handler(func=lambda message: True)
