@@ -60,30 +60,6 @@ def random_movie(message):
     senf_info(bot, message, row)
 
 
-async def genre_movies(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.args:
-        await update.message.reply_text("Вы не указали жанры. Пожалуйста, укажите хотя бы один жанр.")
-        return
-
-    genres = context.args
-
-    con = sqlite3.connect("movie_database.db")
-    with con:
-        cur = con.cursor()
-        # Поиск фильмов по выбранным жанрам
-        query = "SELECT * FROM movies WHERE "
-        query += " OR ".join(["genre LIKE ?" for _ in range(len(genres))])
-        cur.execute(query, tuple(f"%{genre}%" for genre in genres))
-        movies = cur.fetchall()
-        cur.close()
-
-    if not movies:
-        await update.message.reply_text("По вашему запросу ничего не найдено.")
-        return
-
-    for movie in movies:
-        await send_info(update, context, movie)
-
 
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
