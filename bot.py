@@ -60,6 +60,38 @@ def random_movie(message):
     senf_info(bot, message, row)
 
 
+def send_info(message, movie):
+    # Assuming the movie is a tuple with elements (title, genre, year)
+    title = movie[0]
+    genre = movie[1]
+    year = movie[2]
+    movie_info = f"Title: {title}\nGenre: {genre}\nYear: {year}"
+    bot.send_message(message.chat.id, movie_info)
+
+@bot.message_handler(commands=['genre_movies'])
+def genre_movies(message):
+    genres = message.text.split()[1:]
+    if not genres:
+        bot.reply_to(message, "Вы не указали жанры. Пожалуйста, укажите хотя бы один жанр.")
+        return
+
+    con = sqlite3.connect("movie_database.db")
+    with con:
+        cur = con.cursor()
+        # Поиск фильмов по выбранным жанрам
+        query = "SELECT * FROM movies WHERE "
+        query += " OR ".join(["genre LIKE ?" for _ in range(len(genres))])
+        cur.execute(query, tuple(f"%{genre}%" for genre in genres))
+        movies = cur.fetchall()
+
+    if not movies:
+        bot.reply_to(message, "По вашему запросу ничего не найдено.")
+        return
+
+    for movie in movies:
+        send_info(message, movie)
+
+
 
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
